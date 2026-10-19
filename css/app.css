@@ -34,6 +34,11 @@ body {
   padding: 1rem;
 }
 
+.pin-root[hidden],
+.report-root[hidden] {
+  display: none;
+}
+
 .pin-view__form {
   display: flex;
   flex-direction: column;
