@@ -1,4 +1,4 @@
-export const API_URL = 'https://script.google.com/macros/s/<DEPLOYMENT_ID>/exec'; // same /exec as foodc-caja, placeholder until B1-B3 are deployed
+export const API_URL = 'https://script.google.com/macros/s/AKfycbzN9m1QXFS0IW7ervb4zbhK8AYJiHLXahur4QUPC-BPJYZrwaeAxwyJ3QY8nVRRpFqH/exec'; // same /exec as foodc-caja
 export const VERIFY_TIMEOUT_MS = 15000; // no lock, no Sheets
 export const REPORT_TIMEOUT_MS = 60000; // listing + up to ~9 reads, cold start, margin
 export const WINDOW_DAYS = 7;
