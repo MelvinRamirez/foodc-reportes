@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>FoodC — Reportes</title>
+    <link rel="stylesheet" href="./css/app.css" />
+    <meta name="theme-color" content="#7f1d1d" />
+  </head>
+  <body>
+    <!-- Blocking PIN gate (reportes-access): the only screen shown by work
+         unit R1. The date picker / results view root, the manifest link
+         and the version query string on this stylesheet/script are added
+         in work unit R2 (design Decision 6: no service worker is ever
+         registered). -->
+    <div id="pin-root" class="pin-root"></div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
