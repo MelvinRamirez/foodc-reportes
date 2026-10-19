@@ -1,5 +1,7 @@
 import { actions } from './actions.js';
 import * as pin from './pin.js';
+import { classifyReportResult, buildReportViewModel, isValidStartDate } from './report.js';
+import { WINDOW_DAYS } from './config.js';
 
 /**
  * Internal engine. `ctx` is created once by `main.js` (the composition
@@ -8,11 +10,13 @@ import * as pin from './pin.js';
  *   ctx.store       - the app's createStore instance
  *   ctx.api         - a createReportesApiClient instance
  *   ctx.pinStorage  - the injected sessionStorage-like object (or null)
+ *   ctx.reportSeq   - monotonic request-sequence-number counter (mutable,
+ *                     owned by viewReport below; absent/0 until the first
+ *                     call)
  *
  * Trimmed from foodc-caja/js/effects.js: no polling loop, no payment
- * runner, no day-close orchestration (design Decision 7). Only the auth
- * slice's effects survive into work unit R1; report-fetching effects are
- * added in work unit R2.
+ * runner, no day-close orchestration (design Decision 7). Work unit R1
+ * added only the auth slice's effects; work unit R2 adds `viewReport`.
  */
 
 // Codes that indicate a contract bug in the request itself (never a
@@ -73,4 +77,61 @@ export async function unlock(ctx, pinValue) {
     error = 'offline';
   }
   ctx.store.setState((s) => actions.unlockFailed(s, { error }));
+}
+
+// --- report fetching (work unit R2) -------------------------------------
+
+/**
+ * Requests a `getSalesHistory` window and renders its outcome, per
+ * `reportes-sales-view`:
+ *
+ * - "No request is sent while locked": a no-op unless `auth.status` is
+ *   currently 'unlocked'.
+ * - "Picking a start date requests a 7-day window": always passes
+ *   `WINDOW_DAYS` (7).
+ * - "Loading State While a Request Is Pending": dispatches the 'loading'
+ *   status (and clears any prior viewModel) synchronously, before the
+ *   `await`.
+ * - "A Newer Request Supersedes an Older In-Flight Response": a monotonic
+ *   `ctx.reportSeq` counter is captured per call; `actions.reportSettled`
+ *   discards the result unless its `seq` is still the latest one.
+ * - "UNAUTHORIZED Triggers the Relock Flow, Not an In-View Error": hands
+ *   off to `relock` instead of ever setting an error/contract/blocked
+ *   report status.
+ *
+ * @param {object} ctx
+ * @param {string} startDate 'yyyy-MM-dd'
+ */
+export async function viewReport(ctx, startDate) {
+  if (ctx.store.getState().auth.status !== 'unlocked') {
+    return;
+  }
+  if (!isValidStartDate(startDate)) {
+    return;
+  }
+
+  ctx.reportSeq = (ctx.reportSeq || 0) + 1;
+  const seq = ctx.reportSeq;
+  ctx.store.setState((s) => actions.reportRequested(s, { startDate, seq }));
+
+  const result = await ctx.api.getSalesHistory(startDate, WINDOW_DAYS);
+  const classified = classifyReportResult(result);
+
+  if (classified.status === 'relock') {
+    relock(ctx, 'unauthorized');
+    // Leave no stale 'loading' behind for this (now hidden) report root;
+    // actions.reportSettled's own seq guard still protects against a
+    // meanwhile-superseded request.
+    ctx.store.setState((s) => actions.reportSettled(s, { seq, status: 'idle' }));
+    return;
+  }
+
+  if (classified.status === 'ready' || classified.status === 'empty') {
+    const viewModel = buildReportViewModel(classified.window);
+    ctx.store.setState((s) => actions.reportSettled(s, { seq, status: classified.status, viewModel }));
+    return;
+  }
+
+  // 'error' | 'blocked' | 'contract' | 'unknown'
+  ctx.store.setState((s) => actions.reportSettled(s, { seq, status: classified.status, code: classified.code }));
 }

@@ -4,17 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>FoodC — Reportes</title>
-    <link rel="stylesheet" href="./css/app.css" />
+    <link rel="stylesheet" href="./css/app.css?v=1" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <meta name="theme-color" content="#7f1d1d" />
   </head>
   <body>
-    <!-- Blocking PIN gate (reportes-access): the only screen shown by work
-         unit R1. The date picker / results view root, the manifest link
-         and the version query string on this stylesheet/script are added
-         in work unit R2 (design Decision 6: no service worker is ever
-         registered). -->
+    <!-- Blocking PIN gate (reportes-access). -->
     <div id="pin-root" class="pin-root"></div>
 
-    <script type="module" src="./js/main.js"></script>
+    <!-- Sales report view (reportes-sales-view): hidden while locked,
+         shown once the owner unlocks (main.js toggles `hidden` based on
+         auth.status). No service worker is ever registered here (design
+         Decision 6 / reportes-pwa-shell): shell updates rely on the
+         version query string above and on js/main.js below, bumped by
+         hand in the same commit as any change to that asset's content
+         (see docs/reportes.md). -->
+    <main id="report-root" class="report-root" hidden aria-label="Reporte de ventas"></main>
+
+    <script type="module" src="./js/main.js?v=1"></script>
   </body>
 </html>

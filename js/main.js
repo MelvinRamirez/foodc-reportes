@@ -4,7 +4,9 @@ import { initialState } from './actions.js';
 import { createReportesApiClient } from './api.js';
 import { loadPin } from './pin.js';
 import * as effects from './effects.js';
+import { defaultStartDate } from './report.js';
 import { mountPinView } from './views/pin-view.js';
+import { mountReportView } from './views/report-view.js';
 
 /**
  * Reads `sessionStorage` defensively: some private-browsing modes throw on
@@ -22,11 +24,10 @@ function getBrowserSessionStorage() {
 }
 
 /**
- * Minimal composition root for work unit R1: wires only the PIN gate
- * (`reportes-access`). No date picker, no results view, no request
- * sequencing — that wiring, plus the `getSalesHistory` UNAUTHORIZED ->
- * `effects.relock` handoff on a live report fetch, is work unit R2 (design
- * Decision 7; "File Changes" new-repo row).
+ * Composition root. Work unit R1 wired only the PIN gate
+ * (`reportes-access`); work unit R2 adds the date picker / results view
+ * (`reportes-sales-view`), request sequencing, and the `getSalesHistory`
+ * UNAUTHORIZED -> `effects.relock` handoff (design Decision 7).
  */
 function main() {
   const sessionStorageRef = getBrowserSessionStorage();
@@ -44,22 +45,42 @@ function main() {
     pinStorage: sessionStorageRef,
   };
 
-  const handlers = {
-    onUnlock: (pin) => effects.unlock(ctx, pin),
-  };
-
   const pinRoot = document.getElementById('pin-root');
-  mountPinView(pinRoot, store, handlers);
+  mountPinView(pinRoot, store, {
+    onUnlock: (pinValue) => effects.unlock(ctx, pinValue),
+  });
 
-  // Visibility of the PIN screen vs. everything else is main.js's call
-  // (views render unconditionally, pure given state). In R1 there is no
-  // "everything else" to show yet; R2 adds the date picker / results root
-  // and extends this function.
+  const reportRoot = document.getElementById('report-root');
+  const initialStartDate = defaultStartDate(Date.now());
+  mountReportView(reportRoot, store, {
+    onViewReport: (startDate) => effects.viewReport(ctx, startDate),
+  }, initialStartDate);
+
+  // Visibility of the PIN screen vs. the report view is main.js's call
+  // (views render unconditionally, pure given state): the report view is
+  // only ever shown once unlocked (`reportes-access`; `reportes-sales-view`
+  // "No request is sent while locked" relies on this being hidden, not on
+  // the user simply not clicking "Ver").
   function syncVisibility(status) {
     pinRoot.hidden = status === 'unlocked';
+    reportRoot.hidden = status !== 'unlocked';
   }
   syncVisibility(store.getState().auth.status);
   select(store, (state) => state.auth.status, syncVisibility);
+
+  // Fetch the default window the moment the app becomes unlocked — a
+  // stored PIN from a previous session, a fresh unlock, or a resumed
+  // session after a relock — so the owner sees data without an extra tap.
+  // A relock itself never re-triggers this; the owner explicitly presses
+  // "Ver" again after re-entering the PIN.
+  select(store, (state) => state.auth.status, (status) => {
+    if (status === 'unlocked') {
+      effects.viewReport(ctx, initialStartDate);
+    }
+  });
+  if (store.getState().auth.status === 'unlocked') {
+    effects.viewReport(ctx, initialStartDate);
+  }
 }
 
 main();
