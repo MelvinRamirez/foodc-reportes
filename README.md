@@ -21,14 +21,14 @@ A diferencia de `foodc-caja`, el `css/app.css` de este repositorio sigue sin gen
 Este repositorio está en construcción, en orden (mismo patrón que `foodc-caja`/`foodc-kds`):
 
 - **R1 (completo)**: scaffold y módulos puros/casi puros (`store`, `config`, `messages`, `pin`, `api`, `actions`, `effects`), la pantalla de PIN (`views/pin-view.js`) y un `main.js` mínimo que solo resolvía el gate de PIN (`reportes-access`). Sin vista de reporte, sin selector de fecha, sin service worker, nada desplegado.
-- **R2 (completo)**: `js/report.js` (puro: fecha por defecto, validación, clasificación de resultado, view-model), `js/views/report-view.js` (selector de fecha, acción "Ver", KPIs, filas por día, productos, distribución por hora), extensión de `main.js` (secuenciación de requests por número de secuencia, manejo de `UNAUTHORIZED` en `getSalesHistory` -> relock), `manifest.webmanifest`, `docs/reportes.md` (checklist manual completo, en este repositorio). Sin service worker (design Decision 6). Nada desplegado todavía.
-- **Deploy (pendiente, acción del propietario)**: crear el repositorio público remoto, habilitar GitHub Pages, verificación manual — solo después de que el backend (`B1`-`B3` en `FoodC`) esté desplegado a producción.
+- **R2 (completo)**: `js/report.js` (puro: fecha por defecto, validación, clasificación de resultado, view-model), `js/views/report-view.js` (selector de fecha, acción "Ver", KPIs, filas por día, productos, distribución por hora), extensión de `main.js` (secuenciación de requests por número de secuencia, manejo de `UNAUTHORIZED` en `getSalesHistory` -> relock), `manifest.webmanifest`, `docs/reportes.md` (checklist manual completo, en este repositorio). Sin service worker (design Decision 6).
+- **Deploy (completo)**: repositorio público remoto creado, GitHub Pages habilitado, backend (`B1`-`B3` en `FoodC`) desplegado a producción.
 
-El backend necesario (`getSalesHistory`) todavía no está desplegado a producción al momento de escribir este archivo (Phase 8 de deploy pendiente en `FoodC`). El `API_URL` en `js/config.js` queda como placeholder (`<DEPLOYMENT_ID>`) hasta entonces.
+El backend necesario (`getSalesHistory`) está desplegado a producción en `FoodC` (`openspec/changes/archive/sales-dashboard`). El `API_URL` en `js/config.js` apunta al `/exec` real de producción (mismo backend que `foodc-caja`).
 
 ## Deploy
 
-**Todavía no en línea.** URL publicada será `https://melvinramirez.github.io/foodc-reportes/` (placeholder, no es un enlace activo hoy). Crear el repositorio remoto y habilitar Pages requiere confirmación explícita del propietario (ver `openspec/changes/sales-dashboard/tasks.md` en `FoodC`, Phase 15) y solo debe ocurrir después de que el backend esté desplegado (Phase 8). Ver `docs/reportes.md` en este repositorio para el procedimiento completo y el checklist manual.
+**En línea:** `https://melvinramirez.github.io/foodc-reportes/`. Ver `docs/reportes.md` en este repositorio para el procedimiento completo y el checklist manual (pendiente solo la medición a mano del punto 3.4, touch-targets de 44px).
 
 ## Sin service worker (v1)
 
