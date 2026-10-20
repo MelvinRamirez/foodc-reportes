@@ -220,7 +220,20 @@ area). Confirm the *rendered* size once, on a real phone:
 
    | Control | Device | Measured hit area | Pass? |
    |---|---|---|---|
-   | PIN input | *pending* | *pending* | *pending* |
-   | PIN submit button | *pending* | *pending* | *pending* |
-   | Date picker | *pending* | *pending* | *pending* |
-   | "Ver" button | *pending* | *pending* | *pending* |
+   | PIN input | Motorola Edge 40, Chrome, default zoom | not measured in exact CSS px; visually comfortable | visual pass* |
+   | PIN submit button | Motorola Edge 40, Chrome, default zoom | not measured in exact CSS px; visually comfortable | visual pass* |
+   | Date picker | Motorola Edge 40, Chrome, default zoom | not measured in exact CSS px; visually comfortable | visual pass* |
+   | "Ver" button | Motorola Edge 40, Chrome, default zoom | not measured in exact CSS px; visually comfortable | visual pass* |
+
+   \* Confirmed 2026-10-20 against two on-device screenshots of the
+   published app (PIN view and report view). Pixel analysis of the
+   screenshots was attempted but could not be converted to exact CSS
+   pixels without a reliable calibration reference for this device's
+   real browser viewport width/DPR (no USB debugging access available).
+   All four controls appear generously sized relative to surrounding
+   text in both screenshots, with no indication of a cramped target,
+   and the CSS already structurally guarantees `min-height`/`min-width`
+   of `2.75rem` (44px) per `test/shell.test.mjs`. This is a visual
+   confirmation, not an exact-pixel measurement; redo with a device
+   inspector (USB debugging or a desktop browser's remote device mode)
+   if exact numbers are ever needed.
