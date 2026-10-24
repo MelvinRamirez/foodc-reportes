@@ -117,8 +117,9 @@ export function classifyReportResult(apiResult) {
   return { status: 'unknown' };
 }
 
+// Lempira hondureña (HNL), misma convención que foodc-cliente's CURRENCY_SYMBOL.
 function formatMoney_(n) {
-  return typeof n === 'number' && Number.isFinite(n) ? n.toFixed(2) : '--';
+  return typeof n === 'number' && Number.isFinite(n) ? 'L' + n.toFixed(2) : '--';
 }
 
 /**

@@ -193,7 +193,7 @@ test('report-view.js never uses innerHTML/outerHTML/insertAdjacentHTML (textCont
 test('buildReportViewModel: a numeric avg_ticket formats as money', () => {
   const window = validSalesWindow({ totals: { order_count: 4, total_amount: 538, avg_ticket: 134.5 } });
   const viewModel = buildReportViewModel(window);
-  assert.equal(viewModel.totals.avgTicket, '134.50');
+  assert.equal(viewModel.totals.avgTicket, 'L134.50');
   assert.equal(viewModel.totals.avgTicketNoData, false);
 });
 
@@ -305,7 +305,7 @@ test('buildReportViewModel: a partial window renders real data alongside empty/p
   assert.equal(viewModel.isEmptyWindow, false);
   assert.equal(viewModel.isPartialWindow, true);
   assert.equal(viewModel.days[0].stateLabel, 'Cerrado');
-  assert.equal(viewModel.days[0].totalAmount, '200.00');
+  assert.equal(viewModel.days[0].totalAmount, 'L200.00');
   assert.equal(viewModel.days[1].stateLabel, 'Sin cierre');
   assert.equal(viewModel.days[2].stateLabel, 'Pendiente de cierre');
 });
